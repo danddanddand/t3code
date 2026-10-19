@@ -444,7 +444,10 @@ export const ClientSettingsSchema = Schema.Struct({
   contextWindowMeterEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
   composerCollapseOnScroll: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   composerRichTextEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
+  // A stored preset this build no longer offers falls back to the default
+  // instead of failing the whole settings decode.
   pastedTextAttachmentThreshold: PastedTextAttachmentThreshold.pipe(
+    Schema.catchDecoding(() => Effect.succeedSome(DEFAULT_PASTED_TEXT_ATTACHMENT_THRESHOLD)),
     Schema.withDecodingDefault(Effect.succeed(DEFAULT_PASTED_TEXT_ATTACHMENT_THRESHOLD)),
   ),
   sendShortcut: Schema.Literals(["enter", "mod-enter-multiline", "mod-enter"]).pipe(

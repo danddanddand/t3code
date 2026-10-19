@@ -36,6 +36,16 @@ export function pastedTextDisposition(input: {
     : "inline";
 }
 
+/**
+ * Settings label for a `pastedTextAttachmentThreshold` preset, such as
+ * "5 KB (~5,000 chars)". Sizes come first because the threshold also counts
+ * UTF-8 bytes, so non-Latin text and emoji fold with fewer characters.
+ */
+export function pastedTextThresholdLabel(thresholdBytes: number) {
+  const kilobytes = Math.floor(thresholdBytes / 1000);
+  return `${kilobytes} KB (~${(kilobytes * 1000).toLocaleString("en-US")} chars)`;
+}
+
 export function nextPastedTextFileName(existingNames: ReadonlyArray<string>): string {
   const names = new Set(existingNames.map((name) => name.toLowerCase()));
   if (!names.has("pasted-text.txt")) {

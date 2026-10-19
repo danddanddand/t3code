@@ -18,6 +18,7 @@ import {
 } from "@t3tools/contracts";
 import { scopeThreadRef } from "@t3tools/client-runtime/environment";
 import { presentThreadShell } from "@t3tools/client-runtime/state/shell";
+import { pastedTextThresholdLabel } from "@t3tools/client-runtime/text-paste";
 import {
   isAtomCommandInterrupted,
   settlePromise,
@@ -257,8 +258,8 @@ const BACKGROUND_ACTIVITY_BOOLEAN_OVERRIDES: ReadonlyArray<{
   { key: "pauseWhenOnBattery", label: "Pause on battery" },
 ];
 
-function pastedTextThresholdLabel(threshold: PastedTextAttachmentThreshold) {
-  const label = `${threshold.toLocaleString()} characters`;
+function pastedTextThresholdOptionLabel(threshold: PastedTextAttachmentThreshold) {
+  const label = pastedTextThresholdLabel(threshold);
   return threshold === DEFAULT_UNIFIED_SETTINGS.pastedTextAttachmentThreshold
     ? `${label} (default)`
     : label;
@@ -2746,7 +2747,7 @@ export function GeneralSettingsPanel() {
 
         <SettingsRow
           {...searchableSetting("large-paste-threshold")}
-          description={`Pastes this long or longer become a text file attachment. Press ${modifierLabel} + Shift + V to paste inline instead.`}
+          description={`Pastes this size or larger become a text file attachment. Non-Latin text and emoji use more bytes per character, so they reach it sooner. Press ${modifierLabel} + Shift + V to paste inline instead.`}
           resetAction={
             settings.pastedTextAttachmentThreshold !==
             DEFAULT_UNIFIED_SETTINGS.pastedTextAttachmentThreshold ? (
@@ -2777,14 +2778,14 @@ export function GeneralSettingsPanel() {
                 aria-label="Large paste threshold"
               >
                 <SelectValue>
-                  {pastedTextThresholdLabel(settings.pastedTextAttachmentThreshold)}
+                  {pastedTextThresholdOptionLabel(settings.pastedTextAttachmentThreshold)}
                 </SelectValue>
               </SelectTrigger>
               <SelectPopup align="end" alignItemWithTrigger={false}>
                 {PASTED_TEXT_ATTACHMENT_THRESHOLDS.map((threshold) => (
                   <SelectItem key={threshold} value={String(threshold)}>
                     <span className="flex items-center justify-between gap-4">
-                      {pastedTextThresholdLabel(threshold)}
+                      {pastedTextThresholdOptionLabel(threshold)}
                       {settings.pastedTextAttachmentThreshold === threshold && (
                         <CheckIcon aria-hidden="true" />
                       )}

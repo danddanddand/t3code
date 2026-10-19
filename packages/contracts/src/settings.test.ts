@@ -160,8 +160,17 @@ describe("ClientSettings large paste threshold", () => {
     expect(encodeClientSettings(decodeClientSettings(preference))).toMatchObject(preference);
   });
 
-  it("rejects thresholds outside the presets", () => {
+  it("rejects thresholds outside the presets in patches", () => {
     expect(() => decodeClientSettingsPatch({ pastedTextAttachmentThreshold: 2_000 })).toThrow();
+  });
+
+  it("falls back to the default for a stored preset this build no longer offers", () => {
+    const settings = decodeClientSettings({
+      pastedTextAttachmentThreshold: 4_000,
+      sendShortcut: "mod-enter",
+    });
+    expect(settings.pastedTextAttachmentThreshold).toBe(32_768);
+    expect(settings.sendShortcut).toBe("mod-enter");
   });
 });
 

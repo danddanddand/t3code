@@ -1,6 +1,7 @@
 import { ScreenScrollView as ScrollView } from "../../components/ui/ScreenScrollView";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { useNavigation } from "@react-navigation/native";
+import { pastedTextThresholdLabel } from "@t3tools/client-runtime/text-paste";
 import {
   DEFAULT_PASTED_TEXT_ATTACHMENT_THRESHOLD,
   type PastedTextAttachmentThreshold,
@@ -57,7 +58,7 @@ export function SettingsLargePastesRouteScreen() {
           {THRESHOLD_OPTIONS.map(({ threshold, description }, index) => (
             <SettingsChoiceRow
               key={threshold}
-              label={`${threshold.toLocaleString()} characters`}
+              label={pastedTextThresholdLabel(threshold)}
               description={description}
               selected={selectedThreshold === threshold}
               separated={index > 0}
@@ -67,7 +68,8 @@ export function SettingsLargePastesRouteScreen() {
           ))}
         </SettingsSection>
         <Text className="px-2 text-sm text-foreground-muted">
-          Shorter pastes go into the message as text. With a hardware keyboard, press{" "}
+          Sizes count bytes, so non-Latin text and emoji become files with fewer characters. Shorter
+          pastes go into the message as text. With a hardware keyboard, press{" "}
           {PASTE_AS_TEXT_SHORTCUT} to paste a long block as text instead.
         </Text>
       </ScrollView>

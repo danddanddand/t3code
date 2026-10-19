@@ -8,6 +8,7 @@ import {
   nextPastedTextFileName,
   isPasteAsTextShortcut,
   pastedTextDisposition,
+  pastedTextThresholdLabel,
   replaceTextSelection,
   wouldTextPasteExceedLimit,
 } from "./textPaste.ts";
@@ -47,6 +48,14 @@ describe("pasted text disposition", () => {
     }
   });
 
+  it("counts bytes at the 1 KB preset, so non-Latin text folds with fewer characters", () => {
+    const text = "日本語".repeat(120);
+    expect(text.length).toBeLessThan(1_000);
+    expect(pastedTextDisposition({ text, canAttach: true, thresholdBytes: 1_000 })).toBe(
+      "attachment",
+    );
+  });
+
   it("measures UTF-8 bytes instead of UTF-16 characters", () => {
     const text = "🙂".repeat(thresholdBytes / 4);
     expect(text.length).toBeLessThan(thresholdBytes);
@@ -70,6 +79,16 @@ describe("pasted text disposition", () => {
         wouldExceedInputLimit: true,
       }),
     ).toBe("attachment");
+  });
+});
+
+describe("pasted text threshold labels", () => {
+  it("leads with the size and approximates the character count", () => {
+    expect(PASTED_TEXT_ATTACHMENT_THRESHOLDS.map(pastedTextThresholdLabel)).toEqual([
+      "1 KB (~1,000 chars)",
+      "5 KB (~5,000 chars)",
+      "32 KB (~32,000 chars)",
+    ]);
   });
 });
 
