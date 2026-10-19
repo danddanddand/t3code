@@ -30,6 +30,7 @@ import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUniwindTheme } from "../../lib/useUniwindTheme";
 import { FONT_FAMILIES } from "../../lib/fontFamilies";
+import { usePastedTextAttachmentThreshold } from "../../lib/usePastedTextAttachmentThreshold";
 import {
   AuthOrchestrationOperateScope,
   PROVIDER_SEND_TURN_MAX_ATTACHMENTS,
@@ -200,6 +201,7 @@ export function NewTaskDraftScreen(props: {
   const projects = useProjects();
   const flow = useNewTaskFlow();
   const navigation = useNavigation();
+  const pastedTextAttachmentThreshold = usePastedTextAttachmentThreshold();
   const {
     consumeShare,
     getShare,
@@ -1106,6 +1108,7 @@ export function NewTaskDraftScreen(props: {
         text: paste.text,
         wouldExceedInputLimit,
         canAttach: true,
+        thresholdBytes: pastedTextAttachmentThreshold,
       }) === "attachment"
     ) {
       if (canAttach && maxBytes !== null) {

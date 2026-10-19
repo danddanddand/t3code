@@ -149,6 +149,22 @@ describe("storage cleanup settings", () => {
   });
 });
 
+describe("ClientSettings large paste threshold", () => {
+  it("keeps the 32 KiB threshold for settings without a saved preference", () => {
+    expect(decodeClientSettings({}).pastedTextAttachmentThreshold).toBe(32_768);
+  });
+
+  it.each([1_000, 5_000, 32_768])("round-trips the %d character preset", (threshold) => {
+    const preference = { pastedTextAttachmentThreshold: threshold };
+    expect(decodeClientSettingsPatch(preference)).toEqual(preference);
+    expect(encodeClientSettings(decodeClientSettings(preference))).toMatchObject(preference);
+  });
+
+  it("rejects thresholds outside the presets", () => {
+    expect(() => decodeClientSettingsPatch({ pastedTextAttachmentThreshold: 2_000 })).toThrow();
+  });
+});
+
 describe("ClientSettings rich text composer", () => {
   it("enables rich text for new and existing settings without a saved preference", () => {
     expect(decodeClientSettings({}).composerRichTextEnabled).toBe(true);

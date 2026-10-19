@@ -290,6 +290,16 @@ export const LoadBalancingWeights = Schema.Record(
 
 export const DiffColorScheme = Schema.Literals(["red-green", "blue-orange"]);
 
+/**
+ * Paste sizes at which the composer folds clipboard text into a text-file
+ * attachment. A paste folds when either its length or its UTF-8 byte count
+ * reaches the threshold.
+ */
+export const PASTED_TEXT_ATTACHMENT_THRESHOLDS = [1_000, 5_000, 32_768] as const;
+export const PastedTextAttachmentThreshold = Schema.Literals(PASTED_TEXT_ATTACHMENT_THRESHOLDS);
+export type PastedTextAttachmentThreshold = typeof PastedTextAttachmentThreshold.Type;
+export const DEFAULT_PASTED_TEXT_ATTACHMENT_THRESHOLD: PastedTextAttachmentThreshold = 32_768;
+
 export const ChatWidth = Schema.Literals(["comfortable", "wide", "full"]);
 export type ChatWidth = typeof ChatWidth.Type;
 
@@ -434,6 +444,9 @@ export const ClientSettingsSchema = Schema.Struct({
   contextWindowMeterEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
   composerCollapseOnScroll: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   composerRichTextEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
+  pastedTextAttachmentThreshold: PastedTextAttachmentThreshold.pipe(
+    Schema.withDecodingDefault(Effect.succeed(DEFAULT_PASTED_TEXT_ATTACHMENT_THRESHOLD)),
+  ),
   sendShortcut: Schema.Literals(["enter", "mod-enter-multiline", "mod-enter"]).pipe(
     Schema.withDecodingDefault(Effect.succeed("enter")),
   ),
@@ -1598,6 +1611,7 @@ export const ClientSettingsPatch = Schema.Struct({
   contextWindowMeterEnabled: Schema.optionalKey(Schema.Boolean),
   composerCollapseOnScroll: Schema.optionalKey(Schema.Boolean),
   composerRichTextEnabled: Schema.optionalKey(Schema.Boolean),
+  pastedTextAttachmentThreshold: Schema.optionalKey(PastedTextAttachmentThreshold),
   sendShortcut: Schema.optionalKey(Schema.Literals(["enter", "mod-enter-multiline", "mod-enter"])),
   followUpBehavior: Schema.optionalKey(Schema.Literals(["queue", "steer"])),
   proactivePanelsEnabled: Schema.optionalKey(Schema.Boolean),

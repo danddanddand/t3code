@@ -5620,6 +5620,7 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
         bypassAutoAttachment,
         wouldExceedInputLimit,
         canAttach: true,
+        thresholdBytes: settings.pastedTextAttachmentThreshold,
       }) === "attachment";
     if (!shouldFold) {
       return false;

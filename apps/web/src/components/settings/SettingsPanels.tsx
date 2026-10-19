@@ -46,6 +46,8 @@ import {
   MIN_SIDEBAR_AUTO_SETTLE_AFTER_DAYS,
   type ResponseStreamingMode,
   MIN_TERMINAL_FONT_SIZE,
+  PASTED_TEXT_ATTACHMENT_THRESHOLDS,
+  type PastedTextAttachmentThreshold,
   type QuitConfirmationMode,
   SidebarProjectSortOrder,
 } from "@t3tools/contracts/settings";
@@ -254,6 +256,13 @@ const BACKGROUND_ACTIVITY_BOOLEAN_OVERRIDES: ReadonlyArray<{
   { key: "pauseWhenClientLowPower", label: "Pause on client low power" },
   { key: "pauseWhenOnBattery", label: "Pause on battery" },
 ];
+
+function pastedTextThresholdLabel(threshold: PastedTextAttachmentThreshold) {
+  const label = `${threshold.toLocaleString()} characters`;
+  return threshold === DEFAULT_UNIFIED_SETTINGS.pastedTextAttachmentThreshold
+    ? `${label} (default)`
+    : label;
+}
 
 function resetBackgroundActivitySettings() {
   return {
@@ -612,6 +621,10 @@ export function useSettingsRestore(onRestored?: () => void) {
       ? ["Rich text composer"]
       : []),
     ...(settings.sendShortcut !== DEFAULT_UNIFIED_SETTINGS.sendShortcut ? ["Send shortcut"] : []),
+    ...(settings.pastedTextAttachmentThreshold !==
+    DEFAULT_UNIFIED_SETTINGS.pastedTextAttachmentThreshold
+      ? ["Large paste threshold"]
+      : []),
     ...(settings.followUpBehavior !== DEFAULT_UNIFIED_SETTINGS.followUpBehavior
       ? ["Follow-up behavior"]
       : []),
@@ -729,6 +742,7 @@ export function useSettingsRestore(onRestored?: () => void) {
       composerCollapseOnScroll: DEFAULT_UNIFIED_SETTINGS.composerCollapseOnScroll,
       composerRichTextEnabled: DEFAULT_UNIFIED_SETTINGS.composerRichTextEnabled,
       sendShortcut: DEFAULT_UNIFIED_SETTINGS.sendShortcut,
+      pastedTextAttachmentThreshold: DEFAULT_UNIFIED_SETTINGS.pastedTextAttachmentThreshold,
       followUpBehavior: DEFAULT_UNIFIED_SETTINGS.followUpBehavior,
       contextWindowMeterEnabled: DEFAULT_UNIFIED_SETTINGS.contextWindowMeterEnabled,
       environmentIdentificationMode: DEFAULT_UNIFIED_SETTINGS.environmentIdentificationMode,
@@ -2722,6 +2736,58 @@ export function GeneralSettingsPanel() {
                     <span className="flex items-center justify-between gap-4">
                       {option.label}
                       {settings.sendShortcut === option.value && <CheckIcon aria-hidden="true" />}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectPopup>
+            </Select>
+          }
+        />
+
+        <SettingsRow
+          {...searchableSetting("large-paste-threshold")}
+          description={`Pastes this long or longer become a text file attachment. Press ${modifierLabel} + Shift + V to paste inline instead.`}
+          resetAction={
+            settings.pastedTextAttachmentThreshold !==
+            DEFAULT_UNIFIED_SETTINGS.pastedTextAttachmentThreshold ? (
+              <SettingResetButton
+                label="large paste threshold"
+                onClick={() =>
+                  updateSettings({
+                    pastedTextAttachmentThreshold:
+                      DEFAULT_UNIFIED_SETTINGS.pastedTextAttachmentThreshold,
+                  })
+                }
+              />
+            ) : null
+          }
+          control={
+            <Select
+              value={String(settings.pastedTextAttachmentThreshold)}
+              onValueChange={(value) => {
+                const next = PASTED_TEXT_ATTACHMENT_THRESHOLDS.find(
+                  (threshold) => String(threshold) === value,
+                );
+                if (next !== undefined) updateSettings({ pastedTextAttachmentThreshold: next });
+              }}
+            >
+              <SelectTrigger
+                size="sm"
+                className="w-auto min-w-0 max-w-full"
+                aria-label="Large paste threshold"
+              >
+                <SelectValue>
+                  {pastedTextThresholdLabel(settings.pastedTextAttachmentThreshold)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectPopup align="end" alignItemWithTrigger={false}>
+                {PASTED_TEXT_ATTACHMENT_THRESHOLDS.map((threshold) => (
+                  <SelectItem key={threshold} value={String(threshold)}>
+                    <span className="flex items-center justify-between gap-4">
+                      {pastedTextThresholdLabel(threshold)}
+                      {settings.pastedTextAttachmentThreshold === threshold && (
+                        <CheckIcon aria-hidden="true" />
+                      )}
                     </span>
                   </SelectItem>
                 ))}
